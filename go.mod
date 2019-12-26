@@ -1,4 +1,4 @@
-module myutils
+module github.com/xuzhen97/myutils
 
 go 1.13
 
