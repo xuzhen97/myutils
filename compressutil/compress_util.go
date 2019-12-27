@@ -1,4 +1,4 @@
-package myutils
+package compressutil
 
 import (
 	"archive/tar"
@@ -8,12 +8,8 @@ import (
 	"path/filepath"
 )
 
-//解压工具类
-type CompressUtil struct {
-}
-
 //压缩成.gz,类似于linux 下 gzip filename
-func (CompressUtil) CompressGz(srcFile, dest string) error {
+func CompressGz(srcFile, dest string) error {
 	_, filename := filepath.Split(srcFile)
 	d, _ := os.Create(dest + filename + ".gz")
 	defer d.Close()
@@ -43,7 +39,7 @@ func (CompressUtil) CompressGz(srcFile, dest string) error {
 }
 
 //解压类似于Linux gzip filename压缩后的.gz文件
-func (CompressUtil) DeCompressGz(gzFile, dest string) error {
+func DeCompressGz(gzFile, dest string) error {
 	srcFile, err := os.Open(gzFile)
 	if err != nil {
 		return err

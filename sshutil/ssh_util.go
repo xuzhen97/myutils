@@ -1,4 +1,4 @@
-package myutils
+package sshutil
 
 import (
 	"fmt"
@@ -14,14 +14,10 @@ import (
 	"time"
 )
 
-//ssh链接下载工具类
-type SSHUtil struct {
-}
-
 var waitgroup sync.WaitGroup
 
 //递归下载服务器文件夹
-func (this SSHUtil) ListDownloadFile(sftpClient *sftp.Client, dir, savePath string) {
+func ListDownloadFile(sftpClient *sftp.Client, dir, savePath string) {
 	if !exists(savePath) {
 		os.Mkdir(savePath, os.ModePerm)
 	}
@@ -33,10 +29,10 @@ func (this SSHUtil) ListDownloadFile(sftpClient *sftp.Client, dir, savePath stri
 			fmt.Println(fileInfo.Name())
 			if fileInfo.IsDir() {
 				os.Mkdir(savePath+"/"+fileInfo.Name(), os.ModePerm)
-				this.ListDownloadFile(sftpClient, dir+"/"+fileInfo.Name(), savePath+"/"+fileInfo.Name())
+				ListDownloadFile(sftpClient, dir+"/"+fileInfo.Name(), savePath+"/"+fileInfo.Name())
 			} else {
 				waitgroup.Add(1)
-				go this.DownloadFile(sftpClient, dir, savePath, fileInfo.Name())
+				go DownloadFile(sftpClient, dir, savePath, fileInfo.Name())
 			}
 		}
 	}
@@ -44,7 +40,7 @@ func (this SSHUtil) ListDownloadFile(sftpClient *sftp.Client, dir, savePath stri
 }
 
 //下载服务器文件
-func (this SSHUtil) DownloadFile(sftpClient *sftp.Client, dir, savePath, name string) {
+func DownloadFile(sftpClient *sftp.Client, dir, savePath, name string) {
 	defer waitgroup.Done()
 	srcFile, err := sftpClient.Open(dir + "/" + name)
 	if err != nil {
@@ -81,7 +77,7 @@ func exists(path string) bool {
 	return true
 }
 
-func (SSHUtil) SftpConnectPass(user, password, host string, port int) (sftpClient *sftp.Client, err error) { //参数: 远程服务器用户名, 密码, ip, 端口
+func SftpConnectPass(user, password, host string, port int) (sftpClient *sftp.Client, err error) { //参数: 远程服务器用户名, 密码, ip, 端口
 	auth := make([]ssh.AuthMethod, 0)
 	auth = append(auth, ssh.Password(password))
 
@@ -109,7 +105,7 @@ func (SSHUtil) SftpConnectPass(user, password, host string, port int) (sftpClien
 	return
 }
 
-func (SSHUtil) SftpConnectSecret(user, keyPath, host string, port int) (sftpClient *sftp.Client, err error) {
+func SftpConnectSecret(user, keyPath, host string, port int) (sftpClient *sftp.Client, err error) {
 	auth := make([]ssh.AuthMethod, 0)
 
 	privateKeyBytes, err := ioutil.ReadFile(keyPath)
@@ -148,7 +144,7 @@ func (SSHUtil) SftpConnectSecret(user, keyPath, host string, port int) (sftpClie
 	return
 }
 
-func (SSHUtil) SftpConnectSecretPass(user, keyPath, keyPass, host string, port int) (sftpClient *sftp.Client, err error) {
+func SftpConnectSecretPass(user, keyPath, keyPass, host string, port int) (sftpClient *sftp.Client, err error) {
 	auth := make([]ssh.AuthMethod, 0)
 
 	privateKeyBytes, err := ioutil.ReadFile(keyPath)
