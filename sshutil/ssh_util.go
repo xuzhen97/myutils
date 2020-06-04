@@ -20,7 +20,7 @@ var waitgroup sync.WaitGroup
 //递归下载服务器文件夹
 func ListDownloadFile(sftpClient *sftp.Client, dir, savePath string) {
 	if !exists(savePath) {
-		os.Mkdir(savePath, os.ModePerm)
+		os.MkdirAll(savePath, os.ModePerm)
 	}
 	fileInfos, err := sftpClient.ReadDir(dir)
 	if err != nil {
@@ -45,8 +45,6 @@ func ListDownloadFile(sftpClient *sftp.Client, dir, savePath string) {
 
 //下载服务器文件
 func DownloadFile(sftpClient *sftp.Client, dir, savePath, name string) {
-
-	os.Mkdir(filepath.FromSlash(savePath), os.ModePerm)
 
 	defer waitgroup.Done()
 	srcFile, err := sftpClient.Open(dir + "/" + name)
