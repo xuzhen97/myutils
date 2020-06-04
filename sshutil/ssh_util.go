@@ -9,6 +9,7 @@ import (
 	"net"
 	"os"
 	"path"
+	"path/filepath"
 	"strconv"
 	"sync"
 	"time"
@@ -28,8 +29,10 @@ func ListDownloadFile(sftpClient *sftp.Client, dir, savePath string) {
 		for _, fileInfo := range fileInfos {
 			fmt.Println(fileInfo.Name())
 			if fileInfo.IsDir() {
-				os.Mkdir(savePath+"/"+fileInfo.Name(), os.ModePerm)
-				ListDownloadFile(sftpClient, dir+"/"+fileInfo.Name(), savePath+"/"+fileInfo.Name())
+
+				os.Mkdir(filepath.FromSlash(savePath+"/"+fileInfo.Name()), os.ModePerm)
+
+				ListDownloadFile(sftpClient, filepath.FromSlash(dir+"/"+fileInfo.Name()), filepath.FromSlash(savePath+"/"+fileInfo.Name()))
 			} else {
 				waitgroup.Add(1)
 				go DownloadFile(sftpClient, dir, savePath, fileInfo.Name())
@@ -42,7 +45,7 @@ func ListDownloadFile(sftpClient *sftp.Client, dir, savePath string) {
 //下载服务器文件
 func DownloadFile(sftpClient *sftp.Client, dir, savePath, name string) {
 	defer waitgroup.Done()
-	srcFile, err := sftpClient.Open(dir + "/" + name)
+	srcFile, err := sftpClient.Open(filepath.FromSlash(dir + "/" + name))
 	if err != nil {
 		log.Fatal(err)
 	}
