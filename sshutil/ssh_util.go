@@ -32,6 +32,7 @@ func ListDownloadFile(sftpClient *sftp.Client, dir, savePath string) {
 
 				os.Mkdir(filepath.FromSlash(savePath+"/"+fileInfo.Name()), os.ModePerm)
 
+				fmt.Println()
 				ListDownloadFile(sftpClient, dir+"/"+fileInfo.Name(), filepath.FromSlash(savePath+"/"+fileInfo.Name()))
 			} else {
 				waitgroup.Add(1)
@@ -44,6 +45,9 @@ func ListDownloadFile(sftpClient *sftp.Client, dir, savePath string) {
 
 //下载服务器文件
 func DownloadFile(sftpClient *sftp.Client, dir, savePath, name string) {
+
+	os.Mkdir(filepath.FromSlash(savePath), os.ModePerm)
+
 	defer waitgroup.Done()
 	srcFile, err := sftpClient.Open(dir + "/" + name)
 	if err != nil {
